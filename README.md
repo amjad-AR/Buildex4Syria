@@ -294,17 +294,17 @@ https://ai.studio/apps/drive/1LyymRxCNJVknyQibZ1kITVgLyYSIw4x3
 ## Web Application
 
 ![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_1.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_2.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_3.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_4.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_5.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_6.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_7.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_8.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_9.png?raw=true)
-![Web App](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/web_10.png?raw=true)
+![Web App](assets/images/web_2.png)
+![Web App](assets/images/web_3.png)
+![Web App](assets/images/web_4.png)
+![Web App](assets/images/web_5.png)
+![Web App](assets/images/web_6.png)
+![Web App](assets/images/web_7.png)
+![Web App](assets/images/web_8.png)
+![Web App](assets/images/web_9.png)
+![Web App](assets/images/web_10.png)
 
 
 ## 3D Room Generation
 
-![3D Scene](https://github.com/amjad-AR/Buildex4Syria/blob/main/assets/images/room-3d.png?raw=true)
+![3D Scene](assets/images/room_3d.png)
