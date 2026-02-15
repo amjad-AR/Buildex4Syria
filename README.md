@@ -1,9 +1,8 @@
 # Buildex4Syria
-MERN stack
+MERN 
 
-Project Status
-This is a simplified public portfolio version.
-The full commercial version includes advanced pricing logic and proprietary 3D modeling components.
+
+
 
 # Buildex4Syria - 3D Room Configurator Platform
 
