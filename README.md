@@ -290,3 +290,21 @@ npx expo start
 ## View your app in AI Studio
 
 https://ai.studio/apps/drive/1LyymRxCNJVknyQibZ1kITVgLyYSIw4x3
+
+## Web Application
+
+![Web App](assets/images/web_1.png)
+![Web App](assets/images/web_2.png)
+![Web App](assets/images/web_3.png)
+![Web App](assets/images/web_4.png)
+![Web App](assets/images/web_5.png)
+![Web App](assets/images/web_6.png)
+![Web App](assets/images/web_7.png)
+![Web App](assets/images/web_8.png)
+![Web App](assets/images/web_9.png)
+![Web App](assets/images/web_10.png)
+
+
+## 3D Room Generation
+
+![3D Scene](assets/images/room_3d.png)
