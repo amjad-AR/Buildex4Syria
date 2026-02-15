@@ -1,0 +1,5 @@
+{
+  "name": "BUILDEX4SYRIA Configurator",
+  "description": "A high-fidelity 3D interior design configurator built with React, Three.js (via React Three Fiber), featuring real-time PBR material swapping, advanced lighting simulation, and a modern glassmorphism UI.",
+  "requestFramePermissions": []
+}

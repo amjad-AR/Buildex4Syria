@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUILDEX4SYRIA - Smart Interior Generator</title>
+    <style>
+        /* Import Inter and Playfair Display for a premium feel */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --glass-panel: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- LAYOUT LAYERS --- */
+        #layer-setup {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        #layer-3d {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #layer-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            /* Let clicks pass to 3D */
+            display: none;
+            /* Hidden initially */
+        }
+
+        /* --- SETUP WIZARD --- */
+        .wizard-container {
+            width: 900px;
+            max-width: 95%;
+            height: 85vh;
+            background: var(--glass-panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .wizard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .wizard-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .wizard-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .wizard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 40px;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Form Groups */
+        .form-section h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Visual Select Cards */
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .selection-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .selection-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .selection-card.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 auto 8px auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-generate:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* --- FLOATING UI (After Generation) --- */
+        .floating-sidebar {
+            position: absolute;
+            right: 30px;
+            top: 30px;
+            bottom: 30px;
+            width: 300px;
+            background: var(--glass-panel);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 24px;
+            pointer-events: auto;
+            /* Re-enable clicks */
+            overflow-y: auto;
+        }
+
+        .floating-sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .property-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 5px;
+        }
+
+        .property-val {
+            color: white;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: var(--glass-panel);
+            color: white;
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            pointer-events: auto;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LAYER 1: SETUP WIZARD -->
+    <div id="layer-setup">
+        <div class="wizard-container">
+            <div class="wizard-header">
+                <h1>Interior Generator</h1>
+                <p>Define your space and style to generate a custom 3D environment.</p>
+            </div>
+
+            <div class="wizard-grid">
+                <!-- Left Column: Dimensions -->
+                <div class="form-section">
+                    <h3>1. Room Dimensions</h3>
+                    <div class="input-group">
+                        <label>Length (Meters)</label>
+                        <input type="number" id="inp-length" value="6" min="3" max="20" step="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Width (Meters)</label>
+                        <input type="number" id="inp-width" value="5" min="3" max="20" step="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Height (Meters)</label>
+                        <input type="number" id="inp-height" value="3.5" min="2.5" max="6" step="0.1">
+                    </div>
+                </div>
+
+                <!-- Right Column: Initial Styling -->
+                <div class="form-section">
+                    <h3>2. Material & Style Selection</h3>
+
+                    <!-- Stone Type -->
+                    <div class="input-group">
+                        <label>Feature Wall (Stone Type)</label>
+                        <div class="selection-grid" id="opts-stone"></div>
+                    </div>
+
+                    <!-- Paint -->
+                    <div class="input-group">
+                        <label>Paint Type (Walls)</label>
+                        <div class="selection-grid" id="opts-paint"></div>
+                    </div>
+
+                    <!-- Flooring -->
+                    <div class="input-group">
+                        <label>Flooring Type</label>
+                        <div class="selection-grid" id="opts-floor"></div>
+                    </div>
+
+                    <!-- Decor Style -->
+                    <div class="input-group">
+                        <label>Furniture & Decor Style</label>
+                        <select id="sel-style">
+                            <option value="modern">Modern Minimalist</option>
+                            <option value="classic">Classic Warmth</option>
+                            <option value="industrial">Industrial Loft</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
+            <button id="btn-generate" class="btn-generate">Generate 3D Model</button>
+        </div>
+    </div>
+
+    <!-- LAYER 2: 3D VIEWPORT -->
+    <div id="layer-3d"></div>
+
+    <!-- LAYER 3: IN-APP UI -->
+    <div id="layer-ui">
+        <button id="btn-back" class="back-btn">← New Configuration</button>
+
+        <div class="floating-sidebar">
+            <h2>Room Details</h2>
+            <div id="details-content">
+                <!-- Populated by JS -->
+            </div>
+            <div style="margin-top: 30px;">
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.6;">
+                    Navigate using your mouse:<br>
+                    • Left Click + Drag to Rotate<br>
+                    • Right Click + Drag to Pan<br>
+                    • Scroll to Zoom
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN SCRIPT -->
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+        import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+        // --- DATABASE ---
+        const DB = {
+            stone: [
+                { id: 'marble_carrara', name: 'Carrara Marble', color: 0xf5f5f5, rough: 0.1, metal: 0.1 },
+                { id: 'slate_grey', name: 'Grey Slate', color: 0x475569, rough: 0.8, metal: 0.0 },
+                { id: 'travertine', name: 'Travertine', color: 0xe2e8f0, rough: 0.6, metal: 0.0 },
+                { id: 'brick_exposed', name: 'Exposed Brick', color: 0x7c2d12, rough: 1.0, metal: 0.0 }
+            ],
+            paint: [
+                { id: 'pure_white', name: 'Pure White', color: 0xffffff, rough: 0.4 },
+                { id: 'warm_beige', name: 'Warm Beige', color: 0xf5f5dc, rough: 0.5 },
+                { id: 'cool_grey', name: 'Cool Grey', color: 0x94a3b8, rough: 0.5 },
+                { id: 'navy_accent', name: 'Navy Blue', color: 0x1e3a8a, rough: 0.3 }
+            ],
+            floor: [
+                { id: 'wood_oak', name: 'Oak Wood', color: 0xa55b28, rough: 0.4, metal: 0.0 },
+                { id: 'polished_concrete', name: 'Polished Concrete', color: 0x9ca3af, rough: 0.2, metal: 0.1 },
+                { id: 'black_tile', name: 'Black Tile', color: 0x171717, rough: 0.1, metal: 0.3 },
+                { id: 'carpet_crm', name: 'Cream Carpet', color: 0xfef3c7, rough: 1.0, metal: 0.0 }
+            ]
+        };
+
+        // --- STATE ---
+        let currentConfig = {
+            length: 6,
+            width: 5,
+            height: 3.5,
+            stone: DB.stone[0],
+            paint: DB.paint[0],
+            floor: DB.floor[0],
+            style: 'modern'
+        };
+
+        // --- 3D GLOBALS ---
+        let scene, camera, renderer, controls;
+        let roomGroup;
+
+        // --- INITIALIZATION ---
+        // Expose Init to Window to ensure it runs
+        function initApp() {
+            populateUI();
+
+            // Bind Buttons Manually if strict CSP blocks inline (good practice)
+            document.getElementById('btn-generate').addEventListener('click', window.generateRoom);
+            document.getElementById('btn-back').addEventListener('click', window.resetConfig);
+        }
+
+        function populateUI() {
+            const createOptions = (category, containerId) => {
+                const container = document.getElementById(containerId);
+                // Clear existing to prevent duplicates if hot reloading
+                container.innerHTML = '';
+                DB[category].forEach((item, index) => {
+                    const el = document.createElement('div');
+                    el.className = `selection-card ${index === 0 ? 'active' : ''}`;
+                    el.onclick = () => {
+                        container.querySelectorAll('.selection-card').forEach(c => c.classList.remove('active'));
+                        el.classList.add('active');
+                        currentConfig[category] = item;
+                    };
+
+                    const circle = document.createElement('div');
+                    circle.className = 'color-preview';
+                    circle.style.backgroundColor = '#' + item.color.toString(16).padStart(6, '0');
+
+                    const label = document.createElement('div');
+                    label.className = 'card-label';
+                    label.innerText = item.name;
+
+                    el.appendChild(circle);
+                    el.appendChild(label);
+                    container.appendChild(el);
+                });
+            };
+
+            createOptions('stone', 'opts-stone');
+            createOptions('paint', 'opts-paint');
+            createOptions('floor', 'opts-floor');
+        }
+
+        // --- CORE FUNCTION: GENERATE ROOM ---
+        // Attach to window so it is accessible globally
+        window.generateRoom = () => {
+            console.log("Generating Room...");
+
+            const lenInput = document.getElementById('inp-length');
+            const widInput = document.getElementById('inp-width');
+            const hgtInput = document.getElementById('inp-height');
+            const styInput = document.getElementById('sel-style');
+
+            if (!lenInput || !widInput) {
+                console.error("Inputs not found!");
+                return;
+            }
+
+            currentConfig.length = parseFloat(lenInput.value);
+            currentConfig.width = parseFloat(widInput.value);
+            currentConfig.height = parseFloat(hgtInput.value);
+            currentConfig.style = styInput.value;
+
+            // Transition UI
+            document.getElementById('layer-setup').style.opacity = '0';
+            document.getElementById('layer-setup').style.pointerEvents = 'none';
+            document.getElementById('layer-3d').style.opacity = '1';
+            document.getElementById('layer-ui').style.display = 'block';
+
+            // Init 3D Scene if not ready
+            if (!scene) {
+                initThreeJS();
+            }
+
+            // Build the Room Geometry
+            buildRoom();
+            updateDetailsPanel();
+        };
+
+        window.resetConfig = () => {
+            console.log("Resetting Config...");
+            document.getElementById('layer-setup').style.opacity = '1';
+            document.getElementById('layer-setup').style.pointerEvents = 'auto';
+            document.getElementById('layer-3d').style.opacity = '0';
+            document.getElementById('layer-ui').style.display = 'none';
+        };
+
+        // Helper to update Sidebar
+        function updateDetailsPanel() {
+            const container = document.getElementById('details-content');
+            container.innerHTML = `
+                <div class="property-row"><span>Area</span><span class="property-val">${(currentConfig.length * currentConfig.width).toFixed(1)} m²</span></div>
+                <div class="property-row"><span>Ceiling Height</span><span class="property-val">${currentConfig.height} m</span></div>
+                <div class="property-row"><span>Wall Finish</span><span class="property-val">${currentConfig.paint.name}</span></div>
+                <div class="property-row"><span>Feature Wall</span><span class="property-val">${currentConfig.stone.name}</span></div>
+                <div class="property-row"><span>Flooring</span><span class="property-val">${currentConfig.floor.name}</span></div>
+                <div class="property-row"><span>Style</span><span class="property-val" style="text-transform: capitalize;">${currentConfig.style}</span></div>
+            `;
+        }
+
+        // --- 3D ENGINE ---
+        function initThreeJS() {
+            const container = document.getElementById('layer-3d');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+            scene.fog = new THREE.Fog(0x0f172a, 10, 50);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 5, 10);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            // Lights
+            const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambient);
+
+            const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+            sun.position.set(10, 20, 10);
+            sun.castShadow = true;
+            sun.shadow.mapSize.width = 2048;
+            sun.shadow.mapSize.height = 2048;
+            scene.add(sun);
+
+            // Resizing
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+        }
+
+        function buildRoom() {
+            if (roomGroup) scene.remove(roomGroup);
+            roomGroup = new THREE.Group();
+
+            const { width, length, height, stone, paint, floor, style } = currentConfig;
+
+            // Materials
+            const floorMat = new THREE.MeshStandardMaterial({
+                color: floor.color, roughness: floor.rough, metalness: floor.metal
+            });
+            const paintMat = new THREE.MeshStandardMaterial({
+                color: paint.color, roughness: paint.rough
+            });
+            const stoneMat = new THREE.MeshStandardMaterial({
+                color: stone.color, roughness: stone.rough, metalness: stone.metal
+            });
+
+            // 1. Floor
+            const floorGeo = new THREE.PlaneGeometry(width, length);
+            const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+            floorMesh.rotation.x = -Math.PI / 2;
+            floorMesh.receiveShadow = true;
+            roomGroup.add(floorMesh);
+
+            // 2. Back Wall (Feature Stone Wall)
+            const wallBackGeo = new THREE.PlaneGeometry(width, height);
+            const wallBack = new THREE.Mesh(wallBackGeo, stoneMat);
+            wallBack.position.set(0, height / 2, -length / 2);
+            wallBack.receiveShadow = true;
+            roomGroup.add(wallBack);
+
+            // 3. Left Wall (Paint)
+            const wallSideGeo = new THREE.PlaneGeometry(length, height);
+            const wallLeft = new THREE.Mesh(wallSideGeo, paintMat);
+            wallLeft.rotation.y = Math.PI / 2;
+            wallLeft.position.set(-width / 2, height / 2, 0);
+            wallLeft.receiveShadow = true;
+            roomGroup.add(wallLeft);
+
+            // 4. Right Wall (Paint)
+            const wallRight = new THREE.Mesh(wallSideGeo, paintMat);
+            wallRight.rotation.y = -Math.PI / 2;
+            wallRight.position.set(width / 2, height / 2, 0);
+            wallRight.receiveShadow = true;
+            roomGroup.add(wallRight);
+
+            // 5. Ceiling (visible from inside)
+            const ceilingMat = new THREE.MeshStandardMaterial({
+                color: 0xf8fafc, // Light ceiling color
+                roughness: 0.5,
+                metalness: 0.0,
+                side: THREE.DoubleSide // Visible from both sides
+            });
+            const ceilingGeo = new THREE.PlaneGeometry(width, length);
+            const ceilingMesh = new THREE.Mesh(ceilingGeo, ceilingMat);
+            ceilingMesh.rotation.x = Math.PI / 2; // Face downward
+            ceilingMesh.position.set(0, height, 0);
+            ceilingMesh.receiveShadow = true;
+            roomGroup.add(ceilingMesh);
+
+            // 6. Furniture Generation (Procedural based on Style)
+            generateFurniture(style, width, length);
+
+            scene.add(roomGroup);
+
+            // Adjust Camera
+            controls.target.set(0, 1, 0);
+            camera.position.set(width * 1.2, height * 1.5, length * 1.2);
+            controls.update();
+        }
+
+        function generateFurniture(style, roomW, roomL) {
+            // Simple procedural furniture helper
+            const woodMat = new THREE.MeshStandardMaterial({ color: 0x5d4037, roughness: 0.8 });
+            const fabricMat = new THREE.MeshStandardMaterial({ color: style === 'modern' ? 0x94a3b8 : 0xd1d5db, roughness: 1 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: style === 'industrial' ? 0x1e293b : 0xe2e8f0, roughness: 0.5 });
+
+            // Sofa
+            const sofaW = 2.5;
+            const sofaD = 1;
+            const sofaH = 0.5;
+            const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(sofaW, sofaH, sofaD), fabricMat);
+            sofaBase.position.set(0, sofaH / 2, -roomL / 2 + 2);
+            sofaBase.castShadow = true;
+            roomGroup.add(sofaBase);
+
+            // Sofa Back
+            const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(sofaW, 0.4, 0.2), fabricMat);
+            sofaBack.position.set(0, sofaH + 0.2, -roomL / 2 + 2 - sofaD / 2 + 0.1);
+            sofaBack.castShadow = true;
+            roomGroup.add(sofaBack);
+
+            // Coffee Table
+            const tableGeo = style === 'modern'
+                ? new THREE.BoxGeometry(1.2, 0.3, 0.8) // Blocky
+                : new THREE.CylinderGeometry(0.6, 0.6, 0.3, 32); // Round
+
+            const table = new THREE.Mesh(tableGeo, style === 'industrial' ? accentMat : woodMat);
+            table.position.set(0, 0.15, 0);
+            table.castShadow = true;
+            roomGroup.add(table);
+
+            // Art Frame on Stone Wall
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(2, 1.5, 0.05), accentMat);
+            frame.position.set(0, 2, -roomL / 2 + 0.05);
+            roomGroup.add(frame);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Start Up
+        initApp();
+
+    </script>
+</body>
+
+</html>
